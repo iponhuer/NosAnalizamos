@@ -109,3 +109,156 @@ datos_filtrados %>%
   geom_point() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
+
+
+#Preguntas extra
+
+##Alumno más joven
+
+```{r}
+#¿Qué edad, expresada en años (con decimales) tiene el alumno más joven a fecha 01/02/2026.
+
+#fecha ref- fecha nac / 365.25
+
+fecha_ref <- as.Date("01-02-2026", format="%d-%m-%Y")
+
+edad_min <- datos %>% 
+  mutate(fecha_nac = as.Date(`FechaNac(DD-MM-YYY)`, format = "%d-%m-%Y")) %>%
+  mutate(edad = as.numeric(difftime(fecha_ref, fecha_nac, units = "days")) / 365.25) %>% 
+  summarise(edad_minima = min(edad, na.rm = TRUE))
+
+edad_min
+```
+
+
+##Alumnos que trabajan y estudian
+
+```{r}
+trabajan <- datos %>% filter(Hwork > 0)
+
+nrow(trabajan)
+```
+
+##Fumadores por sexo
+
+```{r}
+fumadores <- datos %>%
+  filter(Smoke == "Yes" | Smoke == "Si" | Smoke == "Sí") %>%
+  count(Sex)
+
+fumadores
+```
+
+##Media y varianza de Wr.Hnd según sexo
+
+```{r}
+#limpiar sexos incorrectos
+
+datos <- datos %>%
+  mutate(Sex = case_when(
+      Sex %in% c("M", "F") ~ Sex,
+      TRUE ~ NA_character_))
+
+#limpiar Wr.Hnd
+
+datos <- datos %>%
+  mutate(
+    Wr.Hnd = str_replace_all(Wr.Hnd, ",", "."),
+    Wr.Hnd = as.numeric(Wr.Hnd))
+
+wrhnd_est <- datos %>%
+  group_by(Sex) %>%
+  summarise(
+    media = mean(Wr.Hnd, na.rm = TRUE),
+    varianza = var(Wr.Hnd, na.rm = TRUE))
+
+wrhnd_est
+```
+
+##relación entre sexo y mano de escritura
+
+```{r}
+tabla_mano <- table(datos$Sex, datos$NW.Hnd)
+
+chisq.test(tabla_mano)
+```
+
+##relación lineal Height y Wr.Hnd
+
+```{r}
+
+datos <- datos %>%
+  mutate(Height = str_replace_all(Height, ",", "."),
+    Height = as.numeric(Height))
+
+modelo <- lm(Wr.Hnd ~ Height, data = datos)
+
+summary(modelo)
+```
+
+```{r}
+ggplot(datos,
+       aes(x = Height,
+           y = Wr.Hnd)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+##identificador de Hampel
+
+```{r}
+madm <- function(x, na.rm = TRUE){
+  1.4826 * median(abs(x - median(x, na.rm = na.rm)), na.rm = na.rm)
+}
+
+reglahampel <- function(x, na.rm = TRUE){
+
+  m <- median(x, na.rm = na.rm)
+  s <- madm(x, na.rm = na.rm)
+
+  abs(x - m) > 3*s
+}
+
+outliers_height <- reglahampel(datos$Height)
+
+which(outliers_height)
+
+datos$Height[outliers_height]
+```
+
+##imputación generalizada para FP
+
+```{r}
+media_fp <- mean(datos$FP, na.rm = TRUE)
+
+media_fp
+```
+
+##pulseCat e imputación por casos similares
+
+```{r}
+datos <- datos %>%
+  mutate(Pulse = as.numeric(Pulse),PulseCat = 
+           case_when(Pulse >= 65 ~ "PulseH",Pulse < 65 ~ "PulseL",TRUE ~ NA_character_))
+
+imputacion_fp <- datos %>%
+  group_by(PulseCat) %>%
+  summarise(media_FP = mean(FP, na.rm = TRUE))
+
+imputacion_fp
+```
+
+#conclusión científica
+
+```{r, echo=FALSE}
+
+#No podemos afirmar causalidad únicamente observando correlaciones. Aunque pudiera existir cierta relación  entre el ritmo cardíaco y las calificaciones de ALG, esto no implica que una variable cause la otra. 
+
+```
+
+#comparación entre 2022 y 2026
+
+```{r}
+#Para comparar basta con cambiar el nombre del fichero y ejecutar nuevamente el documento sin modificar el código.
+```
+
