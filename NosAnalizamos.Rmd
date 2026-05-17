@@ -24,3 +24,18 @@ datos <- datos %>%
   mutate(across(13:17, ~ ifelse(. == "NC", 3, .))) %>% mutate(across(13:17, ~ as.numeric(.)))
 
 ```
+
+#tratamiento de notas
+
+```{r}
+notas <- c("ALG", "ANM", "FP", "DCS", "MD")
+
+datos <- datos %>% 
+  mutate(across(13:17, ~ ifelse(. == "NC", 3, .))) %>% mutate(across(13:17, ~ as.numeric(.)))
+
+Notas <- datos %>%
+  select(Id, all_of(notas))
+
+save(Notas, file = "Notas.Rdata")
+
+```
