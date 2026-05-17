@@ -39,3 +39,18 @@ Notas <- datos %>%
 save(Notas, file = "Notas.Rdata")
 
 ```
+
+#estadisticos
+```{r}
+datos %>% summarise(across(where(is.numeric),
+                                 list(
+                                   media= ~mean(.x, na.rm=TRUE),
+                                   minimo = ~min(.x, na.rm=TRUE),
+                                   per_25 = ~quantile(.x,0.25, na.rm= TRUE),
+                                   maximo = ~max(.x, na.rm= TRUE),
+                                   per_75 = ~quantile(.x, 0.75, na.rm= TRUE),
+                                   desv= ~sd(.x,na.rm=TRUE),
+                                   mediana= ~median(.x, na.rm=TRUE)
+                                 ))) 
+```
+
