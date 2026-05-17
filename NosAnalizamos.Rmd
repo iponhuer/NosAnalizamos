@@ -54,3 +54,24 @@ datos %>% summarise(across(where(is.numeric),
                                  ))) 
 ```
 
+#representacion
+
+```{r}
+
+library(GGally)
+ggpairs(datos %>% select(where(is.numeric)))
+```
+
+#Correlaciones y covarianzas
+
+```{r}
+datos_completos <- datos %>% drop_na(where(is.numeric))
+
+cor_pearson <- cor(datos_completos %>% dplyr::select(where(is.numeric)), method= "pearson")
+
+cor_spearman <-cor(datos_completos %>% dplyr::select(where(is.numeric)), method= "spearman")
+
+covarianza <- cov(datos_completos %>% dplyr::select(where(is.numeric)))
+
+which(cor_pearson == max(cor_pearson, na.rm = TRUE), arr.ind = TRUE)
+```
