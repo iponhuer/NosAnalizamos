@@ -1,0 +1,26 @@
+---
+title: "NosAnalizamos"
+author: "Irene Ponce Huerta"
+date: "2026-05-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(pacman)
+library(dplyr)
+library(tidyr)
+datos <- read_tsv("~/Desktop/universidad/tratamiento de datos/NosAnalizamos/NosAutoanalizamos2026 - NosAutoanalizamos (1).tsv",skip= 28)
+datos <- as.data.frame(datos)
+
+datos <- datos %>% drop_na(Id)
+
+datos <- datos %>% filter(Id != "martsobm")
+datos <- datos %>% 
+  mutate(across(13:17, ~ ifelse(. == "NC", 3, .))) %>% mutate(across(13:17, ~ as.numeric(.)))
+
+```
