@@ -75,3 +75,37 @@ covarianza <- cov(datos_completos %>% dplyr::select(where(is.numeric)))
 
 which(cor_pearson == max(cor_pearson, na.rm = TRUE), arr.ind = TRUE)
 ```
+
+#boxplot asignaturas
+
+```{r}
+datos_completos <- datos %>% drop_na(13:17)
+datos_completos <- datos_completos %>% pivot_longer(cols= 13:17, names_to= "asignatura", values_to = "calificacion")
+
+datos_completos %>% ggplot(aes(asignaturas,calificaciones, fill= asignaturas)) + geom_boxplot() +  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+```
+
+#ahora segun el sexo
+```{r}
+datos_completos %>% ggplot(aes(asignaturas,calificaciones, fill= Sex)) +  geom_boxplot() +  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+#ahora con lineas
+```{r}
+#datos_filtrados <- datos_completos %>%
+  group_by(Id) %>% 
+  filter(n() == n_distinct(asignaturas)) %>% 
+  ungroup() #los que tienen todas las notas
+
+#eso es opcional pq ya sabiamos que son los que no tenian na
+
+datos_filtrados %>% 
+  ggplot(aes(x = Id, 
+             y = calificaciones, 
+             colour = asignaturas, 
+             group = asignaturas)) +
+  geom_line() +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
